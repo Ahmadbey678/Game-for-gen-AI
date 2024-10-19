@@ -1,7 +1,7 @@
 import streamlit as st
 import random
 
-# Initialize scores for both games
+# Initialize scores and game states for both games
 if 'rps_user_score' not in st.session_state:
     st.session_state.rps_user_score = 0
 if 'rps_computer_score' not in st.session_state:
@@ -13,10 +13,10 @@ if 'tic_tac_toe_turn' not in st.session_state:
 if 'tic_tac_toe_winner' not in st.session_state:
     st.session_state.tic_tac_toe_winner = None
 
-# Set page config for a fun title and layout
+# Page config
 st.set_page_config(page_title="Fun Game Corner", page_icon="🎮", layout="centered")
 
-# Function to determine the winner in Rock, Paper, Scissors
+# Function to determine winner for Rock, Paper, Scissors
 def determine_winner_rps(user_choice, computer_choice):
     if user_choice == computer_choice:
         return "It's a draw! 🤝"
@@ -27,8 +27,8 @@ def determine_winner_rps(user_choice, computer_choice):
     else:
         return "Computer wins! 😢"
 
-# Function to check the winner in Tic Tac Toe
-def check_winner(board):
+# Function to check the winner for Tic Tac Toe
+def check_winner_ttt(board):
     win_conditions = [(0, 1, 2), (3, 4, 5), (6, 7, 8), (0, 3, 6), (1, 4, 7), (2, 5, 8), (0, 4, 8), (2, 4, 6)]
     for condition in win_conditions:
         if board[condition[0]] == board[condition[1]] == board[condition[2]] and board[condition[0]] != ' ':
@@ -37,13 +37,13 @@ def check_winner(board):
         return "Draw"
     return None
 
-# Reset Tic Tac Toe board
+# Reset Tic Tac Toe game
 def reset_tic_tac_toe():
     st.session_state.tic_tac_toe_board = [' '] * 9
     st.session_state.tic_tac_toe_turn = 'X'
     st.session_state.tic_tac_toe_winner = None
 
-# Select which game to play
+# Sidebar for game selection
 game_choice = st.sidebar.radio("Choose a game:", ['Tic Tac Toe', 'Rock, Paper, Scissors'], index=0)
 
 # --------- Rock Paper Scissors Game ---------
@@ -89,14 +89,15 @@ elif game_choice == 'Tic Tac Toe':
     turn = st.session_state.tic_tac_toe_turn
     winner = st.session_state.tic_tac_toe_winner
 
-    # Display the board as buttons
-    cols = st.columns(3)
-    for i, col in enumerate(cols):
-        if col.button(board[i], key=i, disabled=board[i] != ' ' or winner is not None, 
-                      help=f"Place {turn} here"):
+    # Display the 3x3 grid as interactive buttons
+    cols = [st.columns(3) for _ in range(3)]
+    for i in range(9):
+        row = i // 3
+        col = i % 3
+        if cols[row][col].button(board[i], key=i, disabled=board[i] != ' ' or winner is not None):
             board[i] = turn
             st.session_state.tic_tac_toe_turn = 'O' if turn == 'X' else 'X'
-            st.session_state.tic_tac_toe_winner = check_winner(board)
+            st.session_state.tic_tac_toe_winner = check_winner_ttt(board)
 
     # Check for a winner or draw
     winner = st.session_state.tic_tac_toe_winner
